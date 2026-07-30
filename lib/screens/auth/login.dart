@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'student_signup.dart';
 import 'forgot_password_screen.dart';
-import 'homepage.dart'; // Apna homepage.dart file yahan import karein
+import '../dashboard/homepage.dart'; // Apna homepage.dart file yahan import karein
 
 class LoginScreen extends StatefulWidget {
   final String selectedRole;
@@ -13,7 +13,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   late String _selectedRole;
-  final List<String> _roles = ['Student', 'Warden', 'Kitchen Staff', 'Admin'];
+  final List<String> _roles = ['Student', 'Warden', 'Kitchen Staff'];
 
   bool _obscurePassword = true;
   bool _isLoading = false;

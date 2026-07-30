@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'role_selection_screen.dart';
+import 'screens/auth/role_selection_screen.dart';
 
 void main() {
   runApp(const MyApp());

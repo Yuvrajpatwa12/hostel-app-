@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'community_screen.dart';
+import '../community/community_screen.dart';
 import 'sos_screen.dart';
-import 'routing_screen.dart';
+import '../../routing_screen.dart';
 import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
