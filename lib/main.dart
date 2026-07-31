@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'screens/admin/recipes_management_screen.dart';
 import 'screens/auth/role_selection_screen.dart';
 
 void main() {
@@ -15,14 +16,17 @@ class MyApp extends StatelessWidget {
       title: 'HostelMate',
       theme: ThemeData(
         fontFamily: 'Plus Jakarta Sans',
+        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+        useMaterial3: true,
         primarySwatch: Colors.green,
       ),
-      home: const SplashScreen(),
+      // Direct main flow ma RecipesManagementScreen chalauna visual landing:
+      home: const RecipesManagementScreen(),
     );
   }
 }
 
-// 1. Splash Screen
+// 1. Splash Screen (Tapai ko visual flow secondary dynamic route logic ko lagi preserve gardiyeko)
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
