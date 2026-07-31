@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import '../../fee_status.dart';
+import '../../food_feedback_screen.dart';
+import '../../hostel_details.dart';
+import '../../room_mate.dart';
 import 'hostel_details.dart';   // Import hostel details page
-import 'room_mate.dart';       // Import roommate page
-import 'fee_status.dart';      // Import fee status page
-import 'food_feedback_screen.dart'; // Import separate food review & QR attendance screen
+import 'package:kathmadnuhostel/room_mate.dart';       // Import roommate page
+import 'package:kathmadnuhostel/fee_status.dart';      // Import fee status page
+import 'package:kathmadnuhostel/food_feedback_screen.dart'; // Import separate food review & QR attendance screen
 
 void main() {
   runApp(const MyApp());
