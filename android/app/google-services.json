@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "874999479733",
+    "project_id": "ktmhostelpluee",
+    "storage_bucket": "ktmhostelpluee.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:874999479733:android:3d7bd9a0801f0a1b95adfc",
+        "android_client_info": {
+          "package_name": "com.kathmadnuhostelapp.kathmadnuhostel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPfzD_jn1A6OG-Bl1SP-A4iPDF_syfzqg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
