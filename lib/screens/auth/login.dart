@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'student_signup.dart';
 import 'forgot_password_screen.dart';
-import '../dashboard/homepage.dart'; 
-import '../admin/admin_dashboard_screen.dart'; // Admin Dashboard Import
+import 'kitchen_staff_signup.dart';
+import '../dashboard/homepage.dart';
+import '../admin/admin_dashboard_screen.dart';
+import '../kitchen/kitchen_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final String selectedRole;
@@ -14,8 +16,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   late String _selectedRole;
-  
-  // Roles list
+
   final List<String> _roles = ['Student', 'Warden/Admin', 'Kitchen Staff'];
 
   bool _obscurePassword = true;
@@ -30,12 +31,17 @@ class _LoginScreenState extends State<LoginScreen> {
     _selectedRole = widget.selectedRole;
   }
 
-  // Handle Sign In with Role based redirection
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   void _handleSignIn() async {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
 
-    // Validation: Email and Password required
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -47,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(milliseconds: 1200)); 
+    await Future.delayed(const Duration(milliseconds: 1200));
     setState(() => _isLoading = false);
 
     if (mounted) {
@@ -58,19 +64,22 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
 
-      // 🚀 Role अनुसार Exact Navigation Routing Logic
-      // trim() र toLowerCase() ले String Comparison को galti हुन दिँदैन
       final roleNormalized = _selectedRole.trim().toLowerCase();
 
-      if (roleNormalized == 'admin' || roleNormalized == 'warden') {
-        // Admin वा Warden दुवैको लागि Admin/Management Dashboard खोल्ने
+      // 🚀 Kitchen Staff Login hune bitikai Direct KitchenDashboardScreen khulne
+      if (roleNormalized == 'kitchen staff') {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const KitchenDashboardScreen()),
+          (route) => false,
+        );
+      } else if (roleNormalized == 'admin' || roleNormalized == 'warden' || roleNormalized == 'warden/admin') {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const AdminDashboardScreen()),
           (route) => false,
         );
       } else {
-        // Student र Kitchen Staff को लागि HomeScreen खोल्ने
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => HomeScreen(role: _selectedRole)),
@@ -81,8 +90,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _navigateToSignup() {
-    if (_selectedRole.trim().toLowerCase() == 'student') {
+    final roleNormalized = _selectedRole.trim().toLowerCase();
+    if (roleNormalized == 'student') {
       Navigator.push(context, MaterialPageRoute(builder: (context) => const StudentSignupScreen()));
+    } else if (roleNormalized == 'kitchen staff') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const KitchenStaffSignupScreen()));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('$_selectedRole signup is restricted. Please contact Admin.')),
@@ -135,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text("Sign in to your $_selectedRole portal", style: const TextStyle(fontSize: 14, color: Color(0xFF3D4A3D))),
                   const SizedBox(height: 24),
 
-                  // Role Selector Tabs
+                  // Role Tabs Selector
                   Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
@@ -172,7 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Login Card Container
+                  // Form Container
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -226,7 +238,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 10),
 
-                        // Forgot Password Option (Only for Student)
                         if (_selectedRole.trim().toLowerCase() == 'student')
                           Align(
                             alignment: Alignment.centerRight,
@@ -241,10 +252,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
 
                         if (_selectedRole.trim().toLowerCase() != 'student') const SizedBox(height: 10),
-
                         const SizedBox(height: 16),
 
-                        // Sign In Button
                         SizedBox(
                           width: double.infinity,
                           height: 52,
@@ -269,15 +278,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        _selectedRole.trim().toLowerCase() == 'student' 
-                            ? "Don't have a student account?" 
+                        _selectedRole.trim().toLowerCase() == 'student'
+                            ? "Don't have a student account?"
                             : "Staff/Admin account registration?",
                         style: const TextStyle(fontSize: 13, color: Color(0xFF3D4A3D)),
                       ),
                       TextButton(
                         onPressed: _navigateToSignup,
                         child: Text(
-                          _selectedRole.trim().toLowerCase() == 'student' ? "Sign Up" : "Contact Admin",
+                          _selectedRole.trim().toLowerCase() == 'student'
+                              ? "Sign Up"
+                              : _selectedRole.trim().toLowerCase() == 'kitchen staff'
+                                  ? "Sign Up"
+                                  : "Contact Admin",
                           style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF006E2F)),
                         ),
                       ),

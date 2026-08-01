@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'login.dart';
 
 class KitchenStaffSignupScreen extends StatefulWidget {
   const KitchenStaffSignupScreen({super.key});
@@ -18,16 +19,49 @@ class _KitchenStaffSignupScreenState extends State<KitchenStaffSignupScreen> {
   final TextEditingController _shiftController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _empIdController.dispose();
+    _shiftController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   void _handleSignup() async {
+    // Basic validation
+    if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill all required fields!'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
     await Future.delayed(const Duration(milliseconds: 1500));
     setState(() => _isLoading = false);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kitchen Staff Account Created Successfully!')),
+        const SnackBar(
+          content: Text('Kitchen Staff Account Created Successfully! Please Sign In.'),
+          backgroundColor: Color(0xFF22C55E),
+        ),
       );
-      Navigator.pop(context);
+
+      // Signup bhaye pachi LoginScreen ma Kitchen Staff Role select garera lagchha
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const LoginScreen(selectedRole: 'Kitchen Staff'),
+        ),
+        (route) => false,
+      );
     }
   }
 
@@ -36,7 +70,10 @@ class _KitchenStaffSignupScreenState extends State<KitchenStaffSignupScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FF),
       appBar: AppBar(
-        title: const Text("Kitchen Staff Registration", style: TextStyle(color: Color(0xFF0B1C30), fontWeight: FontWeight.bold)),
+        title: const Text(
+          "Kitchen Staff Registration",
+          style: TextStyle(color: Color(0xFF0B1C30), fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF0B1C30)),
@@ -50,7 +87,10 @@ class _KitchenStaffSignupScreenState extends State<KitchenStaffSignupScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Staff Information", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF006E2F))),
+                  const Text(
+                    "Staff Information",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF006E2F)),
+                  ),
                   const SizedBox(height: 12),
                   TextField(
                     controller: _nameController,
@@ -132,7 +172,10 @@ class _KitchenStaffSignupScreenState extends State<KitchenStaffSignupScreen> {
                       onPressed: _isLoading ? null : _handleSignup,
                       child: _isLoading
                           ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text("Register Staff", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                          : const Text(
+                              "Register Staff",
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
                     ),
                   ),
                 ],
