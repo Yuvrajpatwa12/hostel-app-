@@ -10,7 +10,8 @@ import 'health_management_screen.dart';
 import 'sos_emergency_screen.dart';
 import 'reports_analytics_screen.dart';
 import 'profile_screen.dart';
-import 'events_management_screen.dart'; // 🎯 Events Screen Import थपियो
+import 'events_management_screen.dart'; 
+import 'pending_approvals_screen.dart'; 
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -124,7 +125,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      // 🎯 Added Navigation to PendingApprovalsScreen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const PendingApprovalsScreen()),
+                      );
+                    },
                     icon: const Icon(Icons.verified_user_outlined, color: Colors.white, size: 18),
                     label: const Text("Approvals", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
@@ -239,7 +246,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   const Color(0xFFDC2626),
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HealthManagementScreen())),
                 ),
-                // 🎯 Events Navigation जोडियो
                 _buildModuleTile(
                   "Events",
                   Icons.calendar_today_outlined,
