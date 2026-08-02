@@ -1,12 +1,25 @@
+// import 'package:flutter/material.dart';
+// import 'package:kathmadnuhostel/screens/student/fee_status.dart';
+// import 'package:kathmadnuhostel/screens/student/food_review.dart';
+// import '../student/fee_status.dart';
+// import '../student/food_feedback_screen.dart';
+// import 'hostel_details.dart';
+// import 'room_mate.dart';
+// import '../student/hostel_details.dart';   // Import hostel details page
+// import 'package:kathmadnuhostel/screens/student/room_mate.dart';       // Import roommate page
+// //import 'package:kathmadnuhostel/fee_status.dart';      // Import fee status page
+// //import 'package:kathmadnuhostel/food_feedback_screen.dart'; // Import separate food review & QR attendance screen
+// import 'package:kathmadnuhostel/screens/student/fee_status.dart';
+// import 'package:kathmadnuhostel/screens/student/food_feedback_screen.dart';
+
+
 import 'package:flutter/material.dart';
-import '../../fee_status.dart';
-import '../../food_feedback_screen.dart';
-import '../../hostel_details.dart';
-import '../../room_mate.dart';
-import 'hostel_details.dart';   // Import hostel details page
-import 'package:kathmadnuhostel/room_mate.dart';       // Import roommate page
-import 'package:kathmadnuhostel/fee_status.dart';      // Import fee status page
-import 'package:kathmadnuhostel/food_feedback_screen.dart'; // Import separate food review & QR attendance screen
+
+import 'package:kathmadnuhostel/screens/student/fee_status.dart';
+import 'package:kathmadnuhostel/screens/student/food_feedback_screen.dart';
+import 'package:kathmadnuhostel/screens/student/hostel_details.dart';
+import 'package:kathmadnuhostel/screens/student/room_mate.dart';
+import 'package:kathmadnuhostel/screens/student/user_satting.dart';
 
 void main() {
   runApp(const MyApp());

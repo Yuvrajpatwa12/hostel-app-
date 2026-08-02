@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'student_signup.dart';
 import 'forgot_password_screen.dart';
 import 'kitchen_staff_signup.dart';
-import '../dashboard/homepage.dart';
+import '../student/homepage.dart';
 import '../admin/admin_dashboard_screen.dart';
 import '../kitchen/kitchen_dashboard_screen.dart';
 
