@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:kathmadnuhostel/screens/admin/admin_dashboard_screen.dart';
+import 'package:kathmadnuhostel/screens/auth/complain.dart';
 import 'screens/auth/role_selection_screen.dart';
 
 void main() async {
@@ -50,8 +51,8 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         primarySwatch: Colors.green,
       ),
-      home: isFirebaseReady 
-          ? const SplashScreen()
+      home: isFirebaseReady
+          ? const complainscreen()
           : Scaffold(
               body: Center(
                 child: Column(
@@ -65,7 +66,7 @@ class MyApp extends StatelessWidget {
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: () => Navigator.pushReplacement(
-                        context, 
+                        context,
                         MaterialPageRoute(builder: (context) => const RoleSelectionScreen())
                       ),
                       child: const Text("Continue anyway (Offline/Demo Mode)"),
