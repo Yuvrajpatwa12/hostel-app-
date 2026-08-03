@@ -109,17 +109,15 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
                   const SizedBox(height: 24),
 
                   // Roommate Health Status Widget (Organic Card)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF2E6E2), // Soft terracotta tint
-                        borderRadius: BorderRadius.circular(28),
-                        border: Border.all(color: const Color(0xFFE2D0C9)),
-                      ),
-                      child: Row(
-                        children: [
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF2E6E2), // Soft terracotta tint
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(color: const Color(0xFFE2D0C9)),
+                    ),
+                    child: Row(
+                      children: [
                         Stack(
                           children: [
                             const CircleAvatar(
@@ -176,7 +174,6 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
                         ),
                       ],
                     ),
-                  ),
                   ),
                   const SizedBox(height: 28),
 
@@ -279,116 +276,110 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
                   ),
                   const SizedBox(height: 28),
 
-                  // 🌟 QUICK DIRECT DIAL MOVED TO A BETTER PROMINENT SPOT (Right Below SOS)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: const Color(0xFFE2D0C9)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.02),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
+                  // Quick Direct Dial
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: const Color(0xFFE2D0C9)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.02),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Quick Direct Dial',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF2C221E),
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Quick Direct Dial',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF2C221E),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            GestureDetector(
+                              onTap: () => _showCustomActionDialog(context, 'Hostel Warden', 'Warden ko call lagayi ja rahi hai...'),
+                              child: _buildQuickDialButton('Hostel Warden', Icons.person_pin, 'Call'),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              GestureDetector(
-                                onTap: () => _showCustomActionDialog(context, 'Hostel Warden', 'Warden ko call lagayi ja rahi hai...'),
-                                child: _buildQuickDialButton('Hostel Warden', Icons.person_pin, 'Call'),
-                              ),
-                              GestureDetector(
-                                onTap: () => _showCustomActionDialog(context, 'Hostel Doctor', 'Doctor ko call lagayi ja rahi hai...'),
-                                child: _buildQuickDialButton('Hostel Doctor', Icons.local_hospital, 'Doctor'),
-                              ),
-                              GestureDetector(
-                                onTap: () => _showCustomActionDialog(context, 'Ambulance 102', 'Ambulance 102 par call kiya ja raha hai...'),
-                                child: _buildQuickDialButton('Ambulance', Icons.emergency, '102'),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            GestureDetector(
+                              onTap: () => _showCustomActionDialog(context, 'Hostel Doctor', 'Doctor ko call lagayi ja rahi hai...'),
+                              child: _buildQuickDialButton('Hostel Doctor', Icons.local_hospital, 'Doctor'),
+                            ),
+                            GestureDetector(
+                              onTap: () => _showCustomActionDialog(context, 'Ambulance 102', 'Ambulance 102 par call kiya ja raha hai...'),
+                              child: _buildQuickDialButton('Ambulance', Icons.emergency, '102'),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 28),
 
                   // Share Live Location Toggle Card
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFE2D0C9)),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFEBF4EC),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(Icons.location_on, color: Color(0xFF4A5D4E), size: 22),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFE2D0C9)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEBF4EC),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text(
-                                  'Share Live Location',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                    color: Color(0xFF2C221E),
-                                  ),
+                          child: const Icon(Icons.location_on, color: Color(0xFF4A5D4E), size: 22),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              Text(
+                                'Share Live Location',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: Color(0xFF2C221E),
                                 ),
-                                SizedBox(height: 2),
-                                Text(
-                                  'Update contacts with your real-time coordinates',
-                                  style: TextStyle(fontSize: 11, color: Color(0xFF8C7A70)),
-                                ),
-                              ],
-                            ),
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                'Update contacts with your real-time coordinates',
+                                style: TextStyle(fontSize: 11, color: Color(0xFF8C7A70)),
+                              ),
+                            ],
                           ),
-                          Switch(
-                            value: _isLiveLocationShared,
-                            activeColor: Colors.white,
-                            activeTrackColor: const Color(0xFF4A5D4E),
-                            onChanged: (val) {
-                              setState(() {
-                                _isLiveLocationShared = val;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
+                        ),
+                        Switch(
+                          value: _isLiveLocationShared,
+                          activeColor: Colors.white,
+                          activeTrackColor: const Color(0xFF4A5D4E),
+                          onChanged: (val) {
+                            setState(() {
+                              _isLiveLocationShared = val;
+                            });
+                          },
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 28),
 
-                  // Hostel Specific Practical Emergency Grid (Organic Style)
+                  // Instant Emergency Assistance Grid
                   const Text(
                     'Instant Emergency Assistance',
                     style: TextStyle(
@@ -467,7 +458,7 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
                   ),
                   const SizedBox(height: 28),
 
-                  // Safety Stations Near You Header + World Map Image
+                  // Safety Stations Near You Header + Detailed Map image matching screenshot
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: const [
@@ -491,71 +482,177 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
                   ),
                   const SizedBox(height: 12),
                   
-                  // 🌟 WORLD MAP IMAGE PLACED HERE
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Container(
-                      height: 180,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFE2D0C9)),
-                        image: const DecorationImage(
-                          image: NetworkImage('https://images.unsplash.com/photo-1589519160732-57fc498494f8?auto=format&fit=crop&w=800&q=80'),
-                          fit: BoxFit.cover,
-                        ),
+                  // Detailed Street Map Container (Like screenshot)
+                  Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: const Color(0xFFE2D0C9)),
+                      image: const DecorationImage(
+                        image: NetworkImage('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=800&q=80'), // Detailed city map image
+                        fit: BoxFit.cover,
                       ),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            bottom: 12,
-                            left: 12,
-                            right: 12,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(14),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.08),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
+                    ),
+                    child: Stack(
+                      children: [
+                        // Hospital Card overlay at bottom of map
+                        Positioned(
+                          bottom: 12,
+                          left: 12,
+                          right: 12,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(18),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE5F8ED),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFEBF4EC),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: const Icon(Icons.local_hospital, color: Color(0xFF4A5D4E), size: 20),
+                                  child: const Icon(Icons.local_hospital, color: Color(0xFF27AE60), size: 22),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: const [
+                                      Text(
+                                        'City Hospital',
+                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF2C221E)),
+                                      ),
+                                      SizedBox(height: 2),
+                                      Text(
+                                        '0.4 km • Open Now',
+                                        style: TextStyle(fontSize: 11.5, color: Color(0xFF8C7A70)),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: const [
-                                        Text(
-                                          'City Hospital',
-                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF2C221E)),
-                                        ),
-                                        Text(
-                                          '0.4 km • Open Now',
-                                          style: TextStyle(fontSize: 11, color: Color(0xFF8C7A70)),
-                                        ),
-                                      ],
-                                    ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE5F8ED),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  const Icon(Icons.shield, color: Color(0xFF4A5D4E), size: 20),
-                                ],
-                              ),
+                                  child: const Icon(Icons.shield, color: Color(0xFF27AE60), size: 20),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // 🌟 NEW: Emergency Protocols Card (Added as requested from screenshot)
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: const Color(0xFFE2D0C9)),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF9F6F0),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: const Color(0xFFE2D0C9)),
+                          ),
+                          child: const Icon(Icons.lightbulb_outline, color: Color(0xFFD4AC0D), size: 24),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              Text(
+                                'Emergency Protocols',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: Color(0xFF2C221E),
+                                ),
+                              ),
+                              SizedBox(height: 6),
+                              Text(
+                                'Stay calm. If you press the SOS button, your room number and live location will be broadcast to all hostel staff and local authorities immediately.',
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  color: Color(0xFF8C7A70),
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 🌟 NEW: Your Privacy Card (Added as requested from screenshot)
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: const Color(0xFFE2D0C9)),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF9F6F0),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: const Color(0xFFE2D0C9)),
+                          ),
+                          child: const Icon(Icons.shield_outlined, color: Color(0xFF4A5D4E), size: 24),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              Text(
+                                'Your Privacy',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: Color(0xFF2C221E),
+                                ),
+                              ),
+                              SizedBox(height: 6),
+                              Text(
+                                'Live location sharing is only active when this screen is open or during a triggered SOS alert. You can revoke access at any time.',
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  color: Color(0xFF8C7A70),
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 40),
