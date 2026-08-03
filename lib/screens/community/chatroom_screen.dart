@@ -1,8 +1,21 @@
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class ChatRoomPage extends StatefulWidget {
+  final String groupId;
   final String groupName;
-  const ChatRoomPage({Key? key, required this.groupName}) : super(key: key);
+  final String userId;
+  final String userName;
+
+  const ChatRoomPage({
+    super.key,
+    required this.groupId,
+    required this.groupName,
+    required this.userId,
+    required this.userName,
+  });
 
   @override
   State<ChatRoomPage> createState() => _ChatRoomPageState();
@@ -10,28 +23,129 @@ class ChatRoomPage extends StatefulWidget {
 
 class _ChatRoomPageState extends State<ChatRoomPage> {
   final TextEditingController _messageController = TextEditingController();
-  final List<Map<String, dynamic>> _messages = [
-    {"sender": "Alex", "text": "Hi, everyone!", "time": "10:30", "isMe": false},
-    {
-      "sender": "You",
-      "text": "Hello! Excited to be part of this group. Let's build cool stuff.",
-      "time": "10:31",
-      "isMe": true
-    },
-  ];
+  List<dynamic> _messages = [];
+  int _memberCount = 0;
+  bool _isLoading = true;
+  Timer? _refreshTimer;
+  final String baseUrl = "https://startupsgo.tech/";
 
-  void _sendMessage() {
-    if (_messageController.text.trim().isNotEmpty) {
-      setState(() {
-        _messages.add({
-          "sender": "You",
-          "text": _messageController.text.trim(),
-          "time": TimeOfDay.now().format(context),
-          "isMe": true,
-        });
-        _messageController.clear();
-      });
+  @override
+  void initState() {
+    super.initState();
+    _fetchChatData();
+    _refreshTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      _fetchChatData(silent: true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchChatData({bool silent = false}) async {
+    if (!silent) setState(() => _isLoading = true);
+    try {
+      final response = await http.post(
+        Uri.parse("${baseUrl}get_messages.php"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"group_id": widget.groupId}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data["status"] == "success") {
+          setState(() {
+            _messages = data["messages"] ?? [];
+            _memberCount = data["member_count"] ?? 1;
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (!silent) setState(() => _isLoading = false);
     }
+  }
+
+  void _sendMessage() async {
+    if (_messageController.text.trim().isNotEmpty) {
+      final String text = _messageController.text.trim();
+      _messageController.clear();
+
+      try {
+        final response = await http.post(
+          Uri.parse("${baseUrl}send_message.php"),
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode({
+            "group_id": widget.groupId,
+            "sender_id": widget.userId,
+            "sender_name": widget.userName,
+            "message": text,
+          }),
+        );
+
+        final resData = jsonDecode(response.body);
+        if (resData["status"] == "success") {
+          _fetchChatData(silent: true);
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(resData["message"] ?? "Failed to send")));
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+        }
+      }
+    }
+  }
+
+  void _exitGroup() async {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Exit Group"),
+        content: const Text("Are you sure you want to leave this group? You will need to join again to enter."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context); // Close dialog
+              try {
+                final response = await http.post(
+                  Uri.parse("${baseUrl}leave_group.php"),
+                  headers: {"Content-Type": "application/json"},
+                  body: jsonEncode({
+                    "user_id": widget.userId,
+                    "group_id": widget.groupId,
+                  }),
+                );
+                final resData = jsonDecode(response.body);
+                if (resData["status"] == "success") {
+                  if (mounted) {
+                    Navigator.pop(context, true); // Pop and signal to refresh community screen
+                  }
+                } else {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(resData["message"] ?? "Could not leave")));
+                  }
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+                }
+              }
+            },
+            child: const Text("Exit", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -43,7 +157,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // Custom Top App Bar matching reference design
+            // App Bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
@@ -51,64 +165,29 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                 children: [
                   Row(
                     children: [
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-                        ),
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 8),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            widget.groupName,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                          ),
-                          const SizedBox(height: 2),
-                          const Text(
-                            "Active Now",
-                            style: TextStyle(fontSize: 11, color: Colors.white70),
-                          ),
+                          Text(widget.groupName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                          Text("$_memberCount members joined", style: const TextStyle(fontSize: 11, color: Colors.white70)),
                         ],
                       ),
                     ],
                   ),
-                  Row(
-                    children: [
-                      Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.videocam_outlined, color: Colors.white, size: 20),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.phone_outlined, color: Colors.white, size: 18),
-                      ),
-                    ],
+                  IconButton(
+                    icon: const Icon(Icons.logout, color: Colors.white, size: 20),
+                    onPressed: _exitGroup,
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 10),
 
-            // Chat Body Container with curved top corners
+            // Chat Body
             Expanded(
               child: Container(
                 decoration: const BoxDecoration(
@@ -117,77 +196,47 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                 ),
                 child: Column(
                   children: [
-                    const SizedBox(height: 12),
-                    // "Today" badge
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade300, width: 0.5),
-                        ),
-                        child: const Text(
-                          "Today",
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.grey),
-                        ),
+                    const SizedBox(height: 16),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 24),
+                      child: Text(
+                        "⚠️ This group and all messages will be automatically deleted 24 hours after creation.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 11, color: Colors.black54, fontWeight: FontWeight.w500),
                       ),
                     ),
                     const SizedBox(height: 8),
+                    const Divider(indent: 40, endIndent: 40, thickness: 0.5),
 
-                    // Message List View
                     Expanded(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: _isLoading
+                          ? const Center(child: CircularProgressIndicator(color: primaryPurple))
+                          : _messages.isEmpty
+                          ? const Center(child: Text("No messages yet. Say hello!", style: TextStyle(color: Colors.grey)))
+                          : ListView.builder(
+                        reverse: true,
+                        padding: const EdgeInsets.all(16),
                         itemCount: _messages.length,
                         itemBuilder: (context, index) {
                           final msg = _messages[index];
-                          bool isMe = msg["isMe"];
+                          bool isMe = msg["sender_id"].toString() == widget.userId.toString();
 
                           return Align(
                             alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
                             child: Container(
                               margin: const EdgeInsets.symmetric(vertical: 6),
-                              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
                               padding: const EdgeInsets.all(12),
+                              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
                               decoration: BoxDecoration(
                                 color: isMe ? primaryPurple : const Color(0xFFF1F5F9),
-                                borderRadius: BorderRadius.only(
-                                  topLeft: const Radius.circular(16),
-                                  topRight: const Radius.circular(16),
-                                  bottomLeft: Radius.circular(isMe ? 16 : 4),
-                                  bottomRight: Radius.circular(isMe ? 4 : 16),
-                                ),
+                                borderRadius: BorderRadius.circular(16),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   if (!isMe)
-                                    Padding(
-                                      padding: const EdgeInsets.only(bottom: 4),
-                                      child: Text(
-                                        msg["sender"],
-                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: primaryPurple),
-                                      ),
-                                    ),
-                                  Text(
-                                    msg["text"],
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: isMe ? Colors.white : const Color(0xFF191C1D),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Align(
-                                    alignment: Alignment.bottomRight,
-                                    child: Text(
-                                      msg["time"],
-                                      style: TextStyle(
-                                        fontSize: 9,
-                                        color: isMe ? Colors.white70 : Colors.grey,
-                                      ),
-                                    ),
-                                  ),
+                                    Text(msg["sender_name"] ?? "User", style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: primaryPurple)),
+                                  Text(msg["message"] ?? "", style: TextStyle(color: isMe ? Colors.white : Colors.black87)),
                                 ],
                               ),
                             ),
@@ -196,52 +245,28 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                       ),
                     ),
 
-                    // Bottom Message Input Bar
+                    // Input Bar
                     Container(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                      color: Colors.white,
+                      padding: const EdgeInsets.all(16),
                       child: Row(
                         children: [
                           Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF8F9FA),
-                                borderRadius: BorderRadius.circular(24),
-                                border: Border.all(color: Colors.grey.shade300, width: 0.8),
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.chevron_right, color: Colors.grey),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _messageController,
-                                      onSubmitted: (_) => _sendMessage(),
-                                      decoration: const InputDecoration(
-                                        hintText: "Type a message...",
-                                        border: InputBorder.none,
-                                        hintStyle: TextStyle(fontSize: 13, color: Colors.grey),
-                                      ),
-                                    ),
-                                  ),
-                                  const Icon(Icons.search, color: primaryPurple, size: 20),
-                                ],
+                            child: TextField(
+                              controller: _messageController,
+                              decoration: InputDecoration(
+                                hintText: "Type a message...",
+                                filled: true,
+                                fillColor: Colors.grey[100],
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
                               ),
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          GestureDetector(
-                            onTap: _sendMessage,
-                            child: Container(
-                              width: 44,
-                              height: 44,
-                              decoration: const BoxDecoration(
-                                color: primaryPurple,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.send, color: Colors.white, size: 20),
-                            ),
+                          const SizedBox(width: 8),
+                          FloatingActionButton(
+                            onPressed: _sendMessage,
+                            mini: true,
+                            backgroundColor: primaryPurple,
+                            child: const Icon(Icons.send, color: Colors.white),
                           ),
                         ],
                       ),

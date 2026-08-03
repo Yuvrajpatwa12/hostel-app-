@@ -39,11 +39,12 @@ class _AdminSignupScreenState extends State<AdminSignupScreen> {
         const SnackBar(content: Text('Admin Account Registered Successfully!')),
       );
 
-      // 🚀 ययहाँ Navigator.pop(context); को सट्टा यो कोड राखिएको छ:
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => const AdminDashboardScreen()),
-        (route) => false, // यसले Signup Screen लाई Route Stack बाट हटाउँछ
+        MaterialPageRoute(
+          builder: (context) => const AdminDashboardScreen(userId: '1'), // Default for new signup
+        ),
+        (route) => false,
       );
     }
   }

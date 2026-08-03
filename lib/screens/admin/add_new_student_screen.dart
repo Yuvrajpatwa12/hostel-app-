@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class AddNewStudentScreen extends StatefulWidget {
   const AddNewStudentScreen({super.key});
@@ -8,13 +10,27 @@ class AddNewStudentScreen extends StatefulWidget {
 }
 
 class _AddNewStudentScreenState extends State<AddNewStudentScreen> {
+  // Hostinger API Base URL with CORS Proxy for Web testing
+  static const String baseUrl = "https://corsproxy.io/?https://startupsgo.tech/api";
+
   String selectedGender = 'Male';
   String selectedBlock = 'Block A';
   String? selectedCourse;
   String selectedSemester = 'Year 1 / Sem 1';
   String? selectedRoom;
+  bool _isSaving = false;
 
-  // Block List with A, B, C, D, E
+  // Controllers for fetching data from text fields
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _idController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _collegeController = TextEditingController();
+  final TextEditingController _guardianNameController = TextEditingController();
+  final TextEditingController _guardianPhoneController = TextEditingController();
+  final TextEditingController _dobController = TextEditingController();
+  final TextEditingController _admissionDateController = TextEditingController();
+
   final List<String> blocksList = [
     'Block A',
     'Block B',
@@ -22,9 +38,6 @@ class _AddNewStudentScreenState extends State<AddNewStudentScreen> {
     'Block D',
     'Block E',
   ];
-
-  final TextEditingController _dobController = TextEditingController();
-  final TextEditingController _admissionDateController = TextEditingController();
 
   Future<void> _selectDate(TextEditingController controller) async {
     DateTime? picked = await showDatePicker(
@@ -36,9 +49,63 @@ class _AddNewStudentScreenState extends State<AddNewStudentScreen> {
     if (picked != null) {
       setState(() {
         controller.text =
-            "${picked.month.toString().padLeft(2, '0')}/${picked.day.toString().padLeft(2, '0')}/${picked.year}";
+        "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
       });
     }
+  }
+
+  // Hostinger Database par Student Register karne ka function
+  Future<void> _registerStudent() async {
+    if (_nameController.text.isEmpty || _idController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill in Name and Student ID")),
+      );
+      return;
+    }
+
+    setState(() => _isSaving = true);
+
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/add_student.php'),
+        body: {
+          'name': _nameController.text,
+          'student_id': _idController.text,
+          'dob': _dobController.text,
+          'email': _emailController.text,
+          'phone': _phoneController.text,
+          'gender': selectedGender,
+          'course': selectedCourse ?? 'N/A',
+          'semester': selectedSemester,
+          'college': _collegeController.text,
+          'block': selectedBlock,
+          'room_no': selectedRoom ?? 'Unassigned',
+          'admission_date': _admissionDateController.text,
+          'guardian_name': _guardianNameController.text,
+          'guardian_phone': _guardianPhoneController.text,
+          'status': 'Active',
+        },
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (data['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Student Registered Successfully!")),
+        );
+        Navigator.pop(context, true); // List refresh karne ke liye true bhej rahe hain
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(data['message'] ?? "Failed to register student")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
+
+    setState(() => _isSaving = false);
   }
 
   @override
@@ -53,25 +120,19 @@ class _AddNewStudentScreenState extends State<AddNewStudentScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          "Add New Student",
+          "Add New Student (Hostinger)",
           style: TextStyle(
             color: Color(0xFF1D2939),
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline, color: Color(0xFF1E293B)),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Profile Photo Upload
+            // Profile Photo Upload UI
             Center(
               child: Column(
                 children: [
@@ -128,10 +189,7 @@ class _AddNewStudentScreenState extends State<AddNewStudentScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildLabel("Full Name"),
-                  _buildTextField(
-                    hint: "e.g. Johnathan Doe",
-                    prefixIcon: Icons.person_outline,
-                  ),
+                  _buildTextField(controller: _nameController, hint: "e.g. Johnathan Doe", prefixIcon: Icons.person_outline),
                   const SizedBox(height: 14),
 
                   Row(
@@ -141,7 +199,7 @@ class _AddNewStudentScreenState extends State<AddNewStudentScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _buildLabel("Student ID"),
-                            _buildTextField(hint: "ID-2024-001"),
+                            _buildTextField(controller: _idController, hint: "ID-2024-001"),
                           ],
                         ),
                       ),
@@ -151,7 +209,7 @@ class _AddNewStudentScreenState extends State<AddNewStudentScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _buildLabel("Date of Birth"),
-                            _buildDateField(_dobController, "mm/dd/yyyy"),
+                            _buildDateField(_dobController, "YYYY-MM-DD"),
                           ],
                         ),
                       ),
@@ -161,6 +219,7 @@ class _AddNewStudentScreenState extends State<AddNewStudentScreen> {
 
                   _buildLabel("Email Address"),
                   _buildTextField(
+                    controller: _emailController,
                     hint: "student@university.edu",
                     prefixIcon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
@@ -168,27 +227,11 @@ class _AddNewStudentScreenState extends State<AddNewStudentScreen> {
                   const SizedBox(height: 14),
 
                   _buildLabel("Phone Number"),
-                  Row(
-                    children: [
-                      Container(
-                        width: 55,
-                        height: 48,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: const Text("+1", style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF334155))),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _buildTextField(
-                          hint: "(555) 000-0000",
-                          keyboardType: TextInputType.phone,
-                        ),
-                      ),
-                    ],
+                  _buildTextField(
+                    controller: _phoneController,
+                    hint: "9800000000",
+                    prefixIcon: Icons.phone_outlined,
+                    keyboardType: TextInputType.phone,
                   ),
                   const SizedBox(height: 14),
 
@@ -249,7 +292,7 @@ class _AddNewStudentScreenState extends State<AddNewStudentScreen> {
                               value: selectedCourse,
                               hint: const Text("Select Course", style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
                               decoration: _inputDecoration(),
-                              items: ['B.Sc CS', 'B.A Economics', 'M.B.A Finance']
+                              items: ['B.Sc CS', 'B.A Economics', 'M.B.A Finance', 'B.Tech IT']
                                   .map((c) => DropdownMenuItem(value: c, child: Text(c, style: const TextStyle(fontSize: 13))))
                                   .toList(),
                               onChanged: (val) => setState(() => selectedCourse = val),
@@ -266,7 +309,7 @@ class _AddNewStudentScreenState extends State<AddNewStudentScreen> {
                             DropdownButtonFormField<String>(
                               value: selectedSemester,
                               decoration: _inputDecoration(),
-                              items: ['Year 1 / Sem 1', 'Year 1 / Sem 2', 'Year 2 / Sem 1']
+                              items: ['Year 1 / Sem 1', 'Year 1 / Sem 2', 'Year 2 / Sem 1', 'Year 2 / Sem 2']
                                   .map((s) => DropdownMenuItem(value: s, child: Text(s, style: const TextStyle(fontSize: 12))))
                                   .toList(),
                               onChanged: (val) => setState(() => selectedSemester = val!),
@@ -279,13 +322,13 @@ class _AddNewStudentScreenState extends State<AddNewStudentScreen> {
                   const SizedBox(height: 14),
 
                   _buildLabel("University/College"),
-                  _buildTextField(hint: "e.g. State University of Technology"),
+                  _buildTextField(controller: _collegeController, hint: "e.g. State University of Technology"),
                 ],
               ),
             ),
             const SizedBox(height: 16),
 
-            // Hostel Allocation Section (With Horizontal Scroll for A, B, C, D, E)
+            // Hostel Allocation Section
             _buildSectionCard(
               title: "Hostel Allocation",
               icon: Icons.domain_outlined,
@@ -356,7 +399,7 @@ class _AddNewStudentScreenState extends State<AddNewStudentScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _buildLabel("Admission Date"),
-                            _buildDateField(_admissionDateController, "mm/dd/yyyy"),
+                            _buildDateField(_admissionDateController, "YYYY-MM-DD"),
                           ],
                         ),
                       ),
@@ -375,11 +418,12 @@ class _AddNewStudentScreenState extends State<AddNewStudentScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildLabel("Guardian Name"),
-                  _buildTextField(hint: "Legal Guardian Name"),
+                  _buildTextField(controller: _guardianNameController, hint: "Legal Guardian Name"),
                   const SizedBox(height: 14),
 
                   _buildLabel("Guardian Phone"),
                   _buildTextField(
+                    controller: _guardianPhoneController,
                     hint: "Guardian Phone Number",
                     prefixIcon: Icons.phone_outlined,
                     keyboardType: TextInputType.phone,
@@ -389,35 +433,25 @@ class _AddNewStudentScreenState extends State<AddNewStudentScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Bottom Action Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      side: const BorderSide(color: Color(0xFF2563EB)),
-                    ),
-                    onPressed: () {},
-                    child: const Text("Save Draft", style: TextStyle(color: Color(0xFF2563EB), fontWeight: FontWeight.bold)),
-                  ),
+            // Register Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0052CC),
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0052CC),
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onPressed: () {},
-                    icon: const Icon(Icons.person_add_alt_1_outlined, color: Colors.white, size: 18),
-                    label: const Text("Register Student", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-                  ),
+                onPressed: _isSaving ? null : _registerStudent,
+                icon: _isSaving
+                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : const Icon(Icons.person_add_alt_1_outlined, color: Colors.white, size: 18),
+                label: Text(
+                  _isSaving ? "Registering..." : "Register Student",
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                 ),
-              ],
+              ),
             ),
             const SizedBox(height: 20),
           ],
@@ -462,8 +496,9 @@ class _AddNewStudentScreenState extends State<AddNewStudentScreen> {
     );
   }
 
-  Widget _buildTextField({required String hint, IconData? prefixIcon, TextInputType? keyboardType}) {
+  Widget _buildTextField({required String hint, TextEditingController? controller, IconData? prefixIcon, TextInputType? keyboardType}) {
     return TextField(
+      controller: controller,
       keyboardType: keyboardType,
       decoration: _inputDecoration(hint: hint, prefixIcon: prefixIcon),
     );

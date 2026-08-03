@@ -1,0 +1,4 @@
+- [ ] Update `api/search_student.php` to return all student columns.
+- [ ] Redesign `fee_management_screen.dart` to show full student dossier and fee ledger.
+- [ ] Implement Fee History list within the search result.
+- [ ] Run `flutter analyze` to verify.

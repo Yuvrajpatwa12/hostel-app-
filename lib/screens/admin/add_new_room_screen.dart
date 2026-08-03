@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
+import 'api_service.dart';
 
 class AddNewRoomScreen extends StatefulWidget {
-  const AddNewRoomScreen({super.key});
+  final dynamic editRoom;
+  const AddNewRoomScreen({super.key, this.editRoom});
 
   @override
   State<AddNewRoomScreen> createState() => _AddNewRoomScreenState();
 }
 
 class _AddNewRoomScreenState extends State<AddNewRoomScreen> {
+  final TextEditingController _roomNoController = TextEditingController();
+  final TextEditingController _rentController = TextEditingController();
+
   String selectedBlock = 'Block A';
   String selectedFloor = 'Ground Floor';
   String selectedRoomType = 'Single Occupancy';
   int totalCapacity = 2;
   bool isAvailable = true;
+  bool _isLoading = false;
 
   final Map<String, bool> amenities = {
     'AC': true,
@@ -23,502 +29,248 @@ class _AddNewRoomScreenState extends State<AddNewRoomScreen> {
     'Wardrobe': true,
   };
 
-  final Map<String, IconData> amenityIcons = {
-    'AC': Icons.ac_unit,
-    'Attached Washroom': Icons.shower_outlined,
-    'Balcony': Icons.balcony_outlined,
-    'Wi-Fi': Icons.wifi,
-    'Study Table': Icons.deck_outlined,
-    'Wardrobe': Icons.checkroom_outlined,
-  };
+  @override
+  void initState() {
+    super.initState();
+    if (widget.editRoom != null) {
+      _roomNoController.text = widget.editRoom['room_no'].toString();
+      _rentController.text = widget.editRoom['rent']?.toString() ?? '';
+      selectedBlock = widget.editRoom['block'] ?? 'Block A';
+      selectedFloor = widget.editRoom['floor'] ?? 'Ground Floor';
+      totalCapacity = int.tryParse(widget.editRoom['capacity']?.toString() ?? '2') ?? 2;
+      isAvailable = widget.editRoom['status']?.toString().toUpperCase() == 'AVAILABLE';
+
+      if (widget.editRoom['amenities'] != null) {
+        final List<String> savedList = widget.editRoom['amenities'].toString().split(', ');
+        for (var key in amenities.keys) {
+          amenities[key] = savedList.contains(key);
+        }
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _roomNoController.dispose();
+    _rentController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSave() async {
+    if (_roomNoController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Room number is required!")));
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    final roomData = {
+      "room_no": _roomNoController.text.trim(),
+      "block": selectedBlock,
+      "floor": selectedFloor,
+      "room_type": selectedRoomType,
+      "capacity": totalCapacity,
+      "rent": _rentController.text.trim(),
+      "amenities": amenities.entries.where((e) => e.value).map((e) => e.key).join(', '),
+      "status": isAvailable ? "AVAILABLE" : "FULL",
+    };
+
+    final result = widget.editRoom == null
+        ? await ApiService.addRoom(roomData)
+        : await ApiService.updateRoom(roomData);
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(widget.editRoom == null ? "Room Created! 🎉" : "Room Updated! ✨"), backgroundColor: Colors.green));
+        Navigator.pop(context, true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: ${result['message']}"), backgroundColor: Colors.red));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    bool isEdit = widget.editRoom != null;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          "Add New Room",
-          style: TextStyle(
-            color: Color(0xFF1E293B),
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_none_outlined,
-                color: Color(0xFF1E293B)),
-            onPressed: () {},
-          ),
-          const Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(
-              radius: 16,
-              backgroundColor: Color(0xFF2563EB),
-              child: Text(
-                'JD',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          )
-        ],
+        leading: IconButton(icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)), onPressed: () => Navigator.pop(context)),
+        title: Text(isEdit ? "Edit Room Details" : "Add New Room", style: const TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold, fontSize: 18)),
       ),
-      body: SingleChildScrollView(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Top Banner Card
-            Container(
-              height: 160,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                image: const DecorationImage(
-                  image: NetworkImage(
-                    'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=600&auto=format&fit=crop',
-                  ),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.black.withValues(alpha: 0.6),
-                      Colors.transparent,
-                    ],
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      "HOSTELMATE OPERATIONS",
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      "Expand Housing Capacity",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            _buildBanner(),
             const SizedBox(height: 16),
 
-            // Basic Information Section
             _buildSectionCard(
               title: "Basic Information",
               icon: Icons.domain_outlined,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Room Number",
-                      style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF334155))),
-                  const SizedBox(height: 6),
+                  _fieldLabel("Room Number"),
                   TextField(
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.tag,
-                          color: Color(0xFF64748B), size: 18),
-                      hintText: "e.g. 101",
-                      fillColor: const Color(0xFFF8FAFC),
-                      filled: true,
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 12),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              const BorderSide(color: Color(0xFFE2E8F0))),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              const BorderSide(color: Color(0xFFE2E8F0))),
-                    ),
+                    controller: _roomNoController,
+                    enabled: !isEdit,
+                    decoration: _inputDeco("e.g. 101", Icons.tag),
                   ),
                   const SizedBox(height: 14),
-                  const Text("Hostel Block",
-                      style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF334155))),
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEEF2FF),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: ['Block A', 'Block B', 'Block C'].map((block) {
-                        bool isSelected = selectedBlock == block;
-                        return Expanded(
-                          child: GestureDetector(
-                            onTap: () => setState(() => selectedBlock = block),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? const Color(0xFF2563EB)
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                block,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: isSelected
-                                      ? Colors.white
-                                      : const Color(0xFF475569),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
+                  _fieldLabel("Hostel Block"),
+                  _blockSelector(),
                   const SizedBox(height: 14),
-                  const Text("Floor",
-                      style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF334155))),
-                  const SizedBox(height: 6),
-                  DropdownButtonFormField<String>(
-                    value: selectedFloor,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.layers_outlined,
-                          color: Color(0xFF64748B), size: 18),
-                      fillColor: const Color(0xFFF8FAFC),
-                      filled: true,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              const BorderSide(color: Color(0xFFE2E8F0))),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              const BorderSide(color: Color(0xFFE2E8F0))),
-                    ),
-                    items: [
-                      'Ground Floor',
-                      '1st Floor',
-                      '2nd Floor',
-                      '3rd Floor'
-                    ]
-                        .map((f) => DropdownMenuItem(value: f, child: Text(f)))
-                        .toList(),
-                    onChanged: (val) => setState(() => selectedFloor = val!),
-                  ),
-                  const SizedBox(height: 14),
-                  const Text("Room Type",
-                      style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF334155))),
-                  const SizedBox(height: 6),
-                  DropdownButtonFormField<String>(
-                    value: selectedRoomType,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.single_bed_outlined,
-                          color: Color(0xFF64748B), size: 18),
-                      fillColor: const Color(0xFFF8FAFC),
-                      filled: true,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              const BorderSide(color: Color(0xFFE2E8F0))),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              const BorderSide(color: Color(0xFFE2E8F0))),
-                    ),
-                    items: ['Single Occupancy', 'Double Occupancy', 'Dormitory']
-                        .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-                        .toList(),
-                    onChanged: (val) => setState(() => selectedRoomType = val!),
-                  ),
+                  _fieldLabel("Floor"),
+                  _dropdown(selectedFloor, ['Ground Floor', '1st Floor', '2nd Floor', '3rd Floor'], (v) => setState(() => selectedFloor = v!)),
                 ],
               ),
             ),
             const SizedBox(height: 16),
 
-            // Rent & Capacity Section
             _buildSectionCard(
               title: "Rent & Capacity",
               icon: Icons.payments_outlined,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Total Capacity",
-                      style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF334155))),
-                  const SizedBox(height: 6),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove,
-                              color: Color(0xFF1E293B)),
-                          onPressed: () {
-                            if (totalCapacity > 1) {
-                              setState(() => totalCapacity--);
-                            }
-                          },
-                        ),
-                        Text(
-                          "$totalCapacity",
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.add,
-                              color: Color(0xFF1E293B)),
-                          onPressed: () => setState(() => totalCapacity++),
-                        ),
-                      ],
-                    ),
-                  ),
+                  _fieldLabel("Total Capacity"),
+                  _capacityCounter(),
                   const SizedBox(height: 14),
-                  const Text("Monthly Rent",
-                      style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF334155))),
-                  const SizedBox(height: 6),
+                  _fieldLabel("Monthly Rent"),
                   TextField(
+                    controller: _rentController,
                     keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      prefixIcon: const Padding(
-                        padding: EdgeInsets.all(12.0),
-                        child: Text("\$",
-                            style: TextStyle(
-                                fontSize: 16, color: Color(0xFF64748B))),
-                      ),
-                      suffixText: "USD",
-                      hintText: "0.00",
-                      fillColor: const Color(0xFFF8FAFC),
-                      filled: true,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              const BorderSide(color: Color(0xFFE2E8F0))),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              const BorderSide(color: Color(0xFFE2E8F0))),
-                    ),
+                    decoration: _inputDeco("0.00", Icons.attach_money),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
 
-            // Amenities Chips
-            _buildSectionCard(
-              title: "Available Amenities",
-              icon: Icons.grid_view_rounded,
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 10,
-                children: amenities.keys.map((amenity) {
-                  bool isSelected = amenities[amenity]!;
-                  return FilterChip(
-                    showCheckmark: false,
-                    avatar: Icon(
-                      amenityIcons[amenity],
-                      size: 16,
-                      color: isSelected
-                          ? const Color(0xFF065F46)
-                          : const Color(0xFF475569),
-                    ),
-                    label: Text(amenity),
-                    selected: isSelected,
-                    selectedColor: const Color(0xFFA7F3D0),
-                    backgroundColor: Colors.white,
-                    side: BorderSide(
-                      color: isSelected
-                          ? const Color(0xFF059669)
-                          : const Color(0xFFCBD5E1),
-                    ),
-                    labelStyle: TextStyle(
-                      color: isSelected
-                          ? const Color(0xFF065F46)
-                          : const Color(0xFF334155),
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                    onSelected: (bool selected) {
-                      setState(() {
-                        amenities[amenity] = selected;
-                      });
-                    },
-                  );
-                }).toList(),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Availability Switch Bar
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-              ),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFE2E8F0))),
               child: Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFDCFCE7),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.check_circle_outline,
-                        color: Color(0xFF166534), size: 20),
-                  ),
+                  const Icon(Icons.check_circle_outline, color: Color(0xFF166534), size: 24),
                   const SizedBox(width: 12),
-                  Expanded(
+                  const Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text("Room Availability",
-                            style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF0F172A))),
-                        Text("Available for immediate allocation",
-                            style: TextStyle(
-                                fontSize: 11, color: Color(0xFF64748B))),
+                      children: [
+                        Text("Room Availability", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                        Text("Ready for immediate use", style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
                       ],
                     ),
                   ),
-                  Switch(
-                    value: isAvailable,
-                    activeColor: const Color(0xFF1E3A8A),
-                    onChanged: (val) => setState(() => isAvailable = val),
-                  ),
+                  Switch(value: isAvailable, activeTrackColor: const Color(0xFF1E3A8A), onChanged: (val) => setState(() => isAvailable = val)),
                 ],
               ),
             ),
             const SizedBox(height: 24),
 
-            // Action Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFEEF2FF),
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onPressed: () {},
-                    child: const Text("Save Draft",
-                        style: TextStyle(
-                            color: Color(0xFF1E293B),
-                            fontWeight: FontWeight.bold)),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2563EB),
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onPressed: () {},
-                    icon: const Icon(Icons.add_circle_outline,
-                        color: Colors.white, size: 18),
-                    label: const Text("Create Room",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold)),
-                  ),
-                ),
-              ],
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2563EB), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+                onPressed: _handleSave,
+                child: Text(isEdit ? "Update Changes" : "Create Room", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSectionCard(
-      {required String title, required IconData icon, required Widget child}) {
+  Widget _buildBanner() {
+    return Container(
+      height: 140,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        image: const DecorationImage(image: NetworkImage('https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=600'), fit: BoxFit.cover),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), gradient: LinearGradient(colors: [Colors.black.withValues(alpha: 0.6), Colors.transparent], begin: Alignment.bottomCenter, end: Alignment.topCenter)),
+        alignment: Alignment.bottomLeft,
+        child: const Text("Housing Configuration", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+      ),
+    );
+  }
+
+  Widget _buildSectionCard({required String title, required IconData icon, required Widget child}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: const Color(0xFF2563EB), size: 18),
-              const SizedBox(width: 8),
-              Text(title,
-                  style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F172A))),
-            ],
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFE2E8F0))),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [Icon(icon, color: const Color(0xFF2563EB), size: 18), const SizedBox(width: 8), Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold))]),
+        const SizedBox(height: 16),
+        child,
+      ]),
+    );
+  }
+
+  Widget _fieldLabel(String text) => Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(text, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF475569))));
+
+  InputDecoration _inputDeco(String hint, IconData icon) => InputDecoration(
+    prefixIcon: Icon(icon, color: const Color(0xFF64748B), size: 18),
+    hintText: hint,
+    fillColor: const Color(0xFFF8FAFC),
+    filled: true,
+    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+  );
+
+  Widget _blockSelector() {
+    return Row(
+      children: ['Block A', 'Block B', 'Block C'].map((block) {
+        bool isSel = selectedBlock == block;
+        return Expanded(
+          child: GestureDetector(
+            onTap: () => setState(() => selectedBlock = block),
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 2),
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              decoration: BoxDecoration(color: isSel ? const Color(0xFF2563EB) : const Color(0xFFEEF2FF), borderRadius: BorderRadius.circular(8)),
+              child: Text(block, textAlign: TextAlign.center, style: TextStyle(color: isSel ? Colors.white : const Color(0xFF475569), fontWeight: FontWeight.bold, fontSize: 12)),
+            ),
           ),
-          const SizedBox(height: 16),
-          child,
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _dropdown(String value, List<String> items, ValueChanged<String?> onChanged) {
+    return DropdownButtonFormField<String>(
+      initialValue: value,
+      items: items.map((i) => DropdownMenuItem(value: i, child: Text(i))).toList(),
+      onChanged: onChanged,
+      decoration: _inputDeco("", Icons.layers),
+    );
+  }
+
+  Widget _capacityCounter() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFE2E8F0))),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(icon: const Icon(Icons.remove_circle_outline), onPressed: () => setState(() => totalCapacity = totalCapacity > 1 ? totalCapacity - 1 : 1)),
+          Text("$totalCapacity", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          IconButton(icon: const Icon(Icons.add_circle_outline), onPressed: () => setState(() => totalCapacity++)),
         ],
       ),
     );

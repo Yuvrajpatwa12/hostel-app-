@@ -3,10 +3,7 @@ import '../../fee_status.dart';
 import '../../food_feedback_screen.dart';
 import '../../hostel_details.dart';
 import '../../room_mate.dart';
-import 'hostel_details.dart';   // Import hostel details page
-import 'package:kathmadnuhostel/room_mate.dart';       // Import roommate page
-import 'package:kathmadnuhostel/fee_status.dart';      // Import fee status page
-import 'package:kathmadnuhostel/food_feedback_screen.dart'; // Import separate food review & QR attendance screen
+import '../admin/setting.dart'; // Setting Screen Import
 
 void main() {
   runApp(const MyApp());
@@ -24,13 +21,14 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFFF8FAFC),
         fontFamily: 'Inter',
       ),
-      home: const ProfileScreen(),
+      home: const ProfileScreen(userId: '1'),
     );
   }
 }
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final String userId;
+  const ProfileScreen({super.key, required this.userId});
 
   void _showDetailBottomSheet(BuildContext context, {required String title, required List<Widget> details}) {
     showModalBottomSheet(
@@ -138,7 +136,7 @@ class ProfileScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const UserSettingScreen(),
+                        builder: (context) => SettingScreen(userId: userId), // Passing userId to setting.dart
                       ),
                     );
                   },
@@ -336,7 +334,7 @@ class ProfileScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const FeeStatusScreen(),
+                          builder: (context) => FeeStatusScreen(userId: userId),
                         ),
                       );
                     },
@@ -459,28 +457,6 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class UserSettingScreen extends StatelessWidget {
-  const UserSettingScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        title: const Text('Settings', style: TextStyle(color: Color(0xFF0F172A), fontSize: 18, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18, color: Color(0xFF0F172A)),
-        ),
-      ),
-      body: const Center(child: Text('Settings Options')),
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:kathmadnuhostel/screens/admin/student_management_screen.dart';
+import 'package:kathmadnuhostel/screens/admin/admin_dashboard_screen.dart';
 import 'screens/auth/role_selection_screen.dart';
 
 void main() async {
@@ -50,9 +50,8 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         primarySwatch: Colors.green,
       ),
-      // Firebase status check
       home: isFirebaseReady 
-          ? const StudentManagementScreen()
+          ? const SplashScreen()
           : Scaffold(
               body: Center(
                 child: Column(

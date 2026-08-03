@@ -6,7 +6,15 @@ import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String role;
-  const HomeScreen({super.key, required this.role});
+  final String userId;
+  final String userName;
+
+  const HomeScreen({
+    super.key,
+    required this.role,
+    required this.userId,
+    required this.userName,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -15,13 +23,19 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [
-    const HomeTabContent(),
-    const CommunityScreen(),
-    const SosScreen(),
-    const RoutingScreen(),
-    const ProfileScreen(),
-  ];
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      HomeTabContent(userName: widget.userName),
+      CommunityScreen(userId: widget.userId, userName: widget.userName),
+      const SosScreen(),
+      const RoutingScreen(),
+      ProfileScreen(userId: widget.userId),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +156,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 // HOME TAB CONTENT (Default Dashboard)
 // ----------------------------------------------------
 class HomeTabContent extends StatelessWidget {
-  const HomeTabContent({super.key});
+  final String userName;
+  const HomeTabContent({super.key, required this.userName});
 
   @override
   Widget build(BuildContext context) {
@@ -157,12 +172,12 @@ class HomeTabContent extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("HostelMate", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
-                      SizedBox(height: 2),
-                      Text("Welcome back, Student", style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                      const Text("HostelMate", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
+                      const SizedBox(height: 2),
+                      Text("Welcome back, $userName", style: const TextStyle(fontSize: 13, color: Color(0xFF64748B))),
                     ],
                   ),
                   IconButton(

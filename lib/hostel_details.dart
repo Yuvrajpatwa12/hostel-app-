@@ -130,168 +130,168 @@ class _HostelDetailsScreenState extends State<HostelDetailsScreen> {
             ),
             const SizedBox(height: 28),
 
-            // 2. REFER & EARN & REDEEM PROGRAM
-            const Text(
-              'REFER & EARN PROGRAM',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF64748B),
-                letterSpacing: 0.8,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFFCBD5E1), width: 1.5),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(Icons.card_giftcard, color: Color(0xFF10B981), size: 24),
-                      ),
-                      const SizedBox(width: 14),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Invite Friends & Earn Rewards!',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF0F172A),
-                              ),
-                            ),
-                            SizedBox(height: 2),
-                            Text(
-                              'Get Rs. 500 off on mess fee per successful referral.',
-                              style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  // Share Code Box
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Your Referral Code', style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500)),
-                            SizedBox(height: 2),
-                            Text('YURI2026HOSTEL', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF2563EB), letterSpacing: 1.0)),
-                          ],
-                        ),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            Clipboard.setData(const ClipboardData(text: 'YURI2026HOSTEL'));
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Referral code copied to clipboard!')),
-                            );
-                          },
-                          icon: const Icon(Icons.copy, size: 14),
-                          label: const Text('Copy'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2563EB),
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Divider(color: Color(0xFFE2E8F0), height: 1),
-                  const SizedBox(height: 16),
-
-                  // Redeem Code Option Section
-                  const Text(
-                    'Have a Referral Code?',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F172A),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _redeemController,
-                          textCapitalization: TextCapitalization.characters,
-                          decoration: InputDecoration(
-                            hintText: 'Enter code here...',
-                            hintStyle: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
-                            filled: true,
-                            fillColor: const Color(0xFFF8FAFC),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: _handleRedeem,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF10B981),
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                          textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                        ),
-                        child: const Text('Redeem'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 28),
+            // // 2. REFER & EARN & REDEEM PROGRAM
+            // const Text(
+            //   'REFER & EARN PROGRAM',
+            //   style: TextStyle(
+            //     fontSize: 11,
+            //     fontWeight: FontWeight.w700,
+            //     color: Color(0xFF64748B),
+            //     letterSpacing: 0.8,
+            //   ),
+            // ),
+            // const SizedBox(height: 10),
+            // Container(
+            //   padding: const EdgeInsets.all(20),
+            //   decoration: BoxDecoration(
+            //     color: Colors.white,
+            //     borderRadius: BorderRadius.circular(24),
+            //     border: Border.all(color: const Color(0xFFCBD5E1), width: 1.5),
+            //     boxShadow: [
+            //       BoxShadow(
+            //         color: Colors.black.withValues(alpha: 0.02),
+            //         blurRadius: 10,
+            //         offset: const Offset(0, 4),
+            //       ),
+            //     ],
+            //   ),
+            //   child: Column(
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     children: [
+            //       Row(
+            //         children: [
+            //           Container(
+            //             padding: const EdgeInsets.all(10),
+            //             decoration: BoxDecoration(
+            //               color: const Color(0xFF10B981).withValues(alpha: 0.15),
+            //               borderRadius: BorderRadius.circular(12),
+            //             ),
+            //             child: const Icon(Icons.card_giftcard, color: Color(0xFF10B981), size: 24),
+            //           ),
+            //           const SizedBox(width: 14),
+            //           const Expanded(
+            //             child: Column(
+            //               crossAxisAlignment: CrossAxisAlignment.start,
+            //               children: [
+            //                 Text(
+            //                   'Invite Friends & Earn Rewards!',
+            //                   style: TextStyle(
+            //                     fontSize: 16,
+            //                     fontWeight: FontWeight.bold,
+            //                     color: Color(0xFF0F172A),
+            //                   ),
+            //                 ),
+            //                 SizedBox(height: 2),
+            //                 Text(
+            //                   'Get Rs. 500 off on mess fee per successful referral.',
+            //                   style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+            //                 ),
+            //               ],
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //       const SizedBox(height: 16),
+            //       // Share Code Box
+            //       Container(
+            //         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            //         decoration: BoxDecoration(
+            //           color: const Color(0xFFF1F5F9),
+            //           borderRadius: BorderRadius.circular(16),
+            //           border: Border.all(color: const Color(0xFFE2E8F0)),
+            //         ),
+            //         child: Row(
+            //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //           children: [
+            //             const Column(
+            //               crossAxisAlignment: CrossAxisAlignment.start,
+            //               children: [
+            //                 Text('Your Referral Code', style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500)),
+            //                 SizedBox(height: 2),
+            //                 Text('YURI2026HOSTEL', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF2563EB), letterSpacing: 1.0)),
+            //               ],
+            //             ),
+            //             ElevatedButton.icon(
+            //               onPressed: () {
+            //                 Clipboard.setData(const ClipboardData(text: 'YURI2026HOSTEL'));
+            //                 ScaffoldMessenger.of(context).showSnackBar(
+            //                   const SnackBar(content: Text('Referral code copied to clipboard!')),
+            //                 );
+            //               },
+            //               icon: const Icon(Icons.copy, size: 14),
+            //               label: const Text('Copy'),
+            //               style: ElevatedButton.styleFrom(
+            //                 backgroundColor: const Color(0xFF2563EB),
+            //                 foregroundColor: Colors.white,
+            //                 elevation: 0,
+            //                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            //                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            //                 textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            //               ),
+            //             ),
+            //           ],
+            //         ),
+            //       ),
+            //       const SizedBox(height: 16),
+            //       const Divider(color: Color(0xFFE2E8F0), height: 1),
+            //       const SizedBox(height: 16),
+            //
+            //       // Redeem Code Option Section
+            //       const Text(
+            //         'Have a Referral Code?',
+            //         style: TextStyle(
+            //           fontSize: 13,
+            //           fontWeight: FontWeight.bold,
+            //           color: Color(0xFF0F172A),
+            //         ),
+            //       ),
+            //       const SizedBox(height: 8),
+            //       Row(
+            //         children: [
+            //           Expanded(
+            //             child: TextField(
+            //               controller: _redeemController,
+            //               textCapitalization: TextCapitalization.characters,
+            //               decoration: InputDecoration(
+            //                 hintText: 'Enter code here...',
+            //                 hintStyle: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+            //                 filled: true,
+            //                 fillColor: const Color(0xFFF8FAFC),
+            //                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            //                 border: OutlineInputBorder(
+            //                   borderRadius: BorderRadius.circular(14),
+            //                   borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+            //                 ),
+            //                 enabledBorder: OutlineInputBorder(
+            //                   borderRadius: BorderRadius.circular(14),
+            //                   borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+            //                 ),
+            //                 focusedBorder: OutlineInputBorder(
+            //                   borderRadius: BorderRadius.circular(14),
+            //                   borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+            //                 ),
+            //               ),
+            //             ),
+            //           ),
+            //           const SizedBox(width: 10),
+            //           ElevatedButton(
+            //             onPressed: _handleRedeem,
+            //             style: ElevatedButton.styleFrom(
+            //               backgroundColor: const Color(0xFF10B981),
+            //               foregroundColor: Colors.white,
+            //               elevation: 0,
+            //               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            //               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            //               textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+            //             ),
+            //             child: const Text('Redeem'),
+            //           ),
+            //         ],
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // const SizedBox(height: 28),
 
             // 3. Core Hostel & Room Specifications
             const Text(
